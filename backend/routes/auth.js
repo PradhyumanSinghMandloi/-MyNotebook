@@ -2,6 +2,10 @@ const express =require('express');
 const router= express.Router();
 const User= require('../models/User');
 const {body , validationResult } = require(`express-validator`);
+const bcrypt = require(`bcryptjs`);
+var jwt = require(`jsonwebtoken`);
+
+const JWT_SECRET = 'It is string which  is used as a sign in webtoken using this';
 
 //create a User using :POST "/api/auth". Doesnt require auth
 router.post('/createuser',[
@@ -26,14 +30,32 @@ router.post('/createuser',[
         return  res.status(400).json({error : "Sorry a user with this email already exists"})
     }
     
+    //generating securied password using bycrypt and salt mechanism and both return promise
+    const salt = await  bcrypt.genSalt(10);
+    const  secPass = await bcrypt.hash(req.body.password , salt);
+
+
     user = await  User.create({
         name: req.body.name,
-        password: req.body.password,
+        password: secPass,
         email: req.body.email,
-      })
-      
-   
-      res.json({"Nice" : "nice" })
+      });
+
+      // basically we are generating data which JWT token required and we are providing id of user which is unique
+      const data = {
+          user : {
+              id : user.id
+          }
+      }
+
+      //jwttoken comprises of 3 things 1)algorithm 2) data you want to send 3) secret sign
+
+      //it is synchronus call and we sign the JWT_token using data and secret sign
+     const authToken =  jwt.sign(data , JWT_SECRET);
+     
+     
+     //res.json(user)
+     res.json({authToken})
 
     }
     catch(error){
