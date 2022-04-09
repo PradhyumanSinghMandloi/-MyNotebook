@@ -4,6 +4,7 @@ const User = require("../models/User");
 const { body, validationResult } = require(`express-validator`);
 const bcrypt = require(`bcryptjs`);
 var jwt = require(`jsonwebtoken`);
+var fetchuser = require(`../middleware/fetchuser`);
 
 const JWT_SECRET =
   "It is string which  is used as a sign in webtoken using this";
@@ -111,6 +112,28 @@ router.post(
     }
   }
 );
+
+
+//ROUTE - 3
+// GETTING USER DETAILS OF USER WHO IS LOGGED IN  USING -:   "api/auth/getuser"
+router.post(
+    "/getuser", fetchuser ,async (req, res) => {
+      //check for errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+  
+      try {
+        userId = req.user.id;
+        const user = await User.findById(userId).select("-password");
+        res.send(user);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Internal Server error occured");
+      }
+    }
+  );
 
 
 
