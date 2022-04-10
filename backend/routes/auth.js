@@ -123,7 +123,7 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-  
+     
       try {
         userId = req.user.id;
         const user = await User.findById(userId).select("-password");
