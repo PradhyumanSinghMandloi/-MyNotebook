@@ -8,7 +8,7 @@ const router = express.Router();
 //ROUTE -1 -: "/api/auth/fetchallnotes"
 router.get("/fetchallnotes", fetchuser, async (req, res) => {
   try {
-        
+        console.log(req.user);
         const notes = await Notes.find({ user: req.user.id });
 
         res.json(notes);
@@ -41,12 +41,13 @@ router.post(
           return res.status(400).json({ errors: errors.array() });
         }
     
-        const note = new Note({
+        const note = new Notes({
             title, description, tag, user: req.user.id
         })
     
+        //saving notes
         const saveNote = await note.save()
-    
+
         res.json(saveNote);
       }catch (error) {
         console.log(error.message);
