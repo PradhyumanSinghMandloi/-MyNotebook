@@ -65,26 +65,67 @@ router.put(
   fetchuser,
   async (req, res) => {
 
-     const{title , description , tag}  = req.body;
+    try {
+      
+      const{title , description , tag}  = req.body;
 
-     //create a newnote object
-     const newNote ={};
-     if(title){ newNote.title = title};
-     if(description){ newNote.description = description};
-     if(tag){ newNote.tag = tag};
+      //create a newnote object
+      const newNote ={};
+      if(title){ newNote.title = title};
+      if(description){ newNote.description = description};
+      if(tag){ newNote.tag = tag};
+ 
+ 
+      //Find the note to be updated 
+      let  note = await  Notes.findById(req.params.id);
+      if(!note){res.status(404).send("Note Found")}
+ 
+      if(note.user.toString() !==req.user.id){
+        return res.status(401).send("Not allowed");
+      }
+ 
+      note = await Notes.findByIdAndUpdate(req.params.id , {$set : newNote} , {new : true})
+      res.json({note});
 
+    } catch (error) {
 
-     //Find the note to be updated 
-     let  note = await  Notes.findById(req.params.id);
-     if(!note){res.status(404).send("Note Found")}
-
-     if(note.user.toString() !==req.user.id){
-       return res.status(401).send("Not allowed");
-     }
-
-     note = await Notes.findByIdAndUpdate(req.params.id , {$set : newNote} , {new : true})
-     res.json({note});
+      
+       console.log(error.message);
+        res.status(500).send("Internal Server  error occured");
+    }
 
   });
+
+
+
+  //ROUTE -4 -: "/api/notes/deletenote/:id  -: to del note"
+router.delete(
+  "/deletenote/:id",
+  fetchuser,
+  async (req, res) => {
+
+    try {
+ 
+
+      //Find the note to be deleted 
+      let  note = await  Notes.findById(req.params.id);
+      if(!note){res.status(404).send("Note Found")}
+ 
+      //if user owns the note then dekete
+      if(note.user.toString() !==req.user.id){
+        return res.status(401).send("Not allowed");
+      }
+ 
+      note = await Notes.findByIdAndDelete(req.params.id )
+      res.json({"Success" : "NoPte has been deleted" , note : note});
+ 
+
+    } catch (error) {
+
+       console.log(error.message);
+        res.status(500).send("Internal Server  error occured");
+    }
+  });
+
 
 module.exports = router;
