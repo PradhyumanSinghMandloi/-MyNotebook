@@ -1,54 +1,121 @@
 import noteContext from "../context/Notes/noteContext";
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef ,useState} from "react";
 import Noteitem from "./Noteitem";
 import AddNote from "./AddNote";
+import { Button } from 'react-bootstrap';
+import Modal  from 'react-bootstrap/Modal'
+
 const Notes = () => {
   const context = useContext(noteContext);
   const { notes, getNotes } = context;
 
   useEffect(() => {
-    getNotes();
+    getNotes(); 
     // eslint-disable-next-line
   }, [])
 
  //const ref = useRef(null)
 const ref2 = useRef(null)
 
-  const updateNote  = (note) => {
-    console.log("called");
+  const updateNote  = (currentNote) => {
+    
     ref2.current.click();
+    setNote({etitle : currentNote.title , edescription : currentNote.description , etag : currentNote.tag})
   };
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true); 
+
+
+  const [note , setNote]  = useState({etitle : "" , edescription : "" , etag: ""})
+  const onchange = (e)=> {
+
+    setNote({...note , [e.target.name] : e.target.value})
+    console.log(e.target.name);
+    console.log(e.target.value)
+}
+
+
+const handleClick = (e)=>{
+  console.log("Updating the note...", note)
+  e.preventDefault(); 
+}
  
   return (
     <>
       <AddNote/>
   
-
-<button ref={ref2}  type="button" className="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Launch demo modal
-</button>
-
-
-<div className="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div className="modal-dialog" role="document">
-    <div className="modal-content">
-      <div className="modal-header">
-        <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+      <div className="d-none">
+      <Button   ref={ref2} variant="primary" onClick={handleShow}>
+        Launch demo modal
+      </Button>
       </div>
-      <div className="modal-body">
-        ...
-      </div>
-      <div className="modal-footer">
-        <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" className="btn btn-primary">Update Note</button>
-      </div>
-    </div>
-  </div>
-</div>
-     
+      <Modal show={show} onHide={handleClose} animation={false}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit  Note</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+
+
+        <form>
+          <div className="mb-3 my-3">
+            <label htmlFor="etitle" className="form-label">
+              Title
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="etitle"
+              name="etitle"
+              value={note.etitle}
+              aria-describedby="emailHelp"
+              onChange={onchange}
+            />
+ 
+          </div>
+          <div className="mb-3">
+            <label htmlFor="edescription" className="form-label" onChange={onchange}>
+              Description
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="edescription"
+              name="edescription"
+              value={note.edescription}
+              onChange={onchange}
+            />
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="etag" className="form-label" onChange={onchange}>
+              Tag
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              id="etag"
+              name="etag"
+              value={note.etag}
+              onChange={onchange}
+            />
+          </div>
+         
+        </form>
+
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleClick}>
+            Update Note
+          </Button>
+        </Modal.Footer>
+      </Modal>     
       <div className="row my-3">
         <h2>Your Notes</h2>
         {notes.map((note) => {

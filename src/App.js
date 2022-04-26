@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import NoteState from "./context/Notes/NoteState";
 import Alert from "./components/Alert";
 
+
 function App() {
   return (
     <>
