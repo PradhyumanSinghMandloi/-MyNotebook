@@ -40,19 +40,7 @@ const NoteState = (props) => {
     });
 
     const json = await response.json();
-    console.log(json)
-    
-    console.log("adding a new note");
-    //api call
-    // const note = {
-    //   _id: "6253cc36f220f67c0567194c",
-    //   user: "6251440ea569ae69b026ed2b",
-    //   title: title,
-    //   description: description,
-    //   tag: tag,
-    //   date: "2022-04-11T06:35:34.292Z",
-    //   __v: 0,
-    // };
+
     setnotes(notes.concat(json));
 
   };
@@ -70,7 +58,7 @@ const NoteState = (props) => {
     const json = response.json();
     console.log(json);
 
-    console.log("deleting node with id" + id);
+
     const newNotes = notes.filter((note) => {
       return note._id !== id;
     });
@@ -82,7 +70,7 @@ const NoteState = (props) => {
     // api call
 
     const response = await fetch(`${host}/api/notes/updatenote/${id}`, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
         "auth-token":
@@ -90,24 +78,31 @@ const NoteState = (props) => {
       },
       body: JSON.stringify({title, description , tag}), // body data type must match "Content-Type" header
     });
-    const json =  response.json();
+    const json =  await response.json();
     console.log(json)
 
+    //wwe are making copy of notes so that we can directly udate in front-end we can't update state direcly from here
+    let newNotes = JSON.parse(JSON.stringify(notes))
     //logic to add in client
     for (let index = 0; index < notes.length; index++) {
       const element = notes[index];
       if (element._id === id) {
-        element.title = title;
-        element.description = description;
-        element.tag = tag;
+        newNotes[index].title = title;
+        newNotes[index].description = description;
+        newNotes[index].tag = tag;
+        break;
       }
+      
+      
+    
     }
+    setnotes(newNotes)
   };
   return (
     <NoteContext.Provider value={{ notes, addNote, deleteNote, editNote , getNotes}}>
       {props.children}
     </NoteContext.Provider>
-  );
+  );  
 };
 
 export default NoteState;

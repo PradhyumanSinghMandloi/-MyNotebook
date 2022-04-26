@@ -6,8 +6,15 @@ import { Button } from 'react-bootstrap';
 import Modal  from 'react-bootstrap/Modal'
 
 const Notes = () => {
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true); 
+
+
   const context = useContext(noteContext);
-  const { notes, getNotes } = context;
+  const { notes, getNotes ,editNote } = context;
 
   useEffect(() => {
     getNotes(); 
@@ -16,37 +23,34 @@ const Notes = () => {
 
  //const ref = useRef(null)
 const ref2 = useRef(null)
+const refClose = useRef(null)
 
-  const updateNote  = (currentNote) => {
+
+const updateNote  = (currentNote) => {
     
     ref2.current.click();
-    setNote({etitle : currentNote.title , edescription : currentNote.description , etag : currentNote.tag})
+    setNote({id : currentNote._id ,etitle : currentNote.title , edescription : currentNote.description , etag : currentNote.tag})
   };
 
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true); 
-
-
-  const [note , setNote]  = useState({etitle : "" , edescription : "" , etag: ""})
+  const [note , setNote]  = useState({ id : "" ,etitle : "" , edescription : "" , etag: ""})
   const onchange = (e)=> {
 
     setNote({...note , [e.target.name] : e.target.value})
-    console.log(e.target.name);
-    console.log(e.target.value)
+
 }
 
 
 const handleClick = (e)=>{
-  console.log("Updating the note...", note)
+ 
+  editNote(note.id , note.etitle, note.edescription , note.etag)
+  refClose.current.click();
   e.preventDefault(); 
 }
  
   return (
     <>
       <AddNote/>
-  
+ 
       <div className="d-none">
       <Button   ref={ref2} variant="primary" onClick={handleShow}>
         Launch demo modal
@@ -85,6 +89,7 @@ const handleClick = (e)=>{
               id="edescription"
               name="edescription"
               value={note.edescription}
+              minLength={5} required
               onChange={onchange}
             />
           </div>
@@ -100,6 +105,7 @@ const handleClick = (e)=>{
               name="etag"
               value={note.etag}
               onChange={onchange}
+              minLength={5} required
             />
           </div>
          
@@ -108,16 +114,19 @@ const handleClick = (e)=>{
 
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button ref={refClose} variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleClick}>
+          <Button  variant="primary" onClick={handleClick}>
             Update Note
           </Button>
         </Modal.Footer>
       </Modal>     
       <div className="row my-3">
         <h2>Your Notes</h2>
+        <div className="container mx-2">
+        {notes.length===0 && 'You have no notes in you book'}
+        </div>
         {notes.map((note) => {
           return (
             <Noteitem key={note._id}  note={note} updateNote={updateNote} />
