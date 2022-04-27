@@ -5,23 +5,45 @@ import Navbar from "./components/Navbar";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import NoteState from "./context/Notes/NoteState";
 import Alert from "./components/Alert";
-
+import Signup from "./components/Signup";
+import Login from "./components/Login";
+import {useState} from 'react';
 
 function App() {
+
+  const [alert, setAlert] = useState(null)
+
+  const showAlert = (message , type) =>{
+
+    setAlert({
+      msg : message,
+      type : type
+    })
+    setTimeout(() => {
+      setAlert(null);
+      
+    }, 1500);
+  }
   return (
     <>
       <NoteState>
-        <Alert  message="any message"/>
+        <Alert  alert={alert} />
         <Router>
           <Navbar />
           <div className="container">
             <Switch>
               <Route exact path="/">
-                <Home />
+                <Home  showAlert ={showAlert}/>
               </Route>
 
               <Route exact path="/about">
                 <About />
+              </Route>
+              <Route exact path="/login">
+                <Login  showAlert ={showAlert}/>
+              </Route>
+              <Route exact path="/signup">
+                <Signup  showAlert ={showAlert}/>
               </Route>
             </Switch>
           </div>

@@ -23,17 +23,20 @@ router.post(
   async (req, res) => {
     //if there are errors , return errors
     const errors = validationResult(req);
+    let success = false;
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+     
+      return res.status(400).json({ success , errors: errors.array() });
     }
 
     //check for unique email before creating email
     try {
       let user = await User.findOne({ email: req.body.email });
       if (user) {
+        
         return res
           .status(400)
-          .json({ error: "Sorry a user with this email already exists" });
+          .json({  success ,error: "Sorry a user with this email already exists" });
       }
 
       //generating securied password using bycrypt and salt mechanism and both return promise
@@ -58,8 +61,9 @@ router.post(
       //it is synchronus call and we sign the JWT_token using data and secret sign
       const authToken = jwt.sign(data, JWT_SECRET);
 
+        success = true;
       //res.json(user)
-      res.json({ authToken });
+      res.json({ success ,  authToken });
     } catch (error) {
       console.log(error.message);
       res.status(500).send("Internal Server  error occured");
@@ -76,6 +80,7 @@ router.post(
     body(`password`, `Password cannot be a blank`).exists(),
   ],
   async (req, res) => {
+    let success = false;
     //check for errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -89,14 +94,14 @@ router.post(
       if (!user)
         return res
           .status(400)
-          .json({ error: "Please try to enter with correct credentials" });
+          .json({ success ,  error: "Please try to enter with correct credentials" });
 
       //compare the existing password with input password
       const passwordCompare = await bcrypt.compare(password, user.password);
       if (!passwordCompare)
         return res
           .status(400)
-          .json({ error: "Please try to enter with correct credentials" });
+          .json({ success ,error: "Please try to enter with correct credentials" });
 
       const data = {
         user: {
@@ -105,7 +110,8 @@ router.post(
       };
 
       const authtoken = jwt.sign(data, JWT_SECRET);
-      res.send({ authtoken });
+      success = true ;
+      res.json({ success ,authtoken });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internal Server error occured");

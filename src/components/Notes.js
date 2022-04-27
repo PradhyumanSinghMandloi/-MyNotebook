@@ -1,14 +1,16 @@
 import noteContext from "../context/Notes/noteContext";
-import React, { useContext, useEffect, useRef ,useState} from "react";
+import React, { useContext, useEffect, useRef ,useState } from "react";
 import Noteitem from "./Noteitem";
 import AddNote from "./AddNote";
 import { Button } from 'react-bootstrap';
 import Modal  from 'react-bootstrap/Modal'
+import { useHistory } from 'react-router-dom'
 
-const Notes = () => {
+
+const Notes = (props) => {
 
   const [show, setShow] = useState(false);
-
+  let history = useHistory();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true); 
 
@@ -17,7 +19,13 @@ const Notes = () => {
   const { notes, getNotes ,editNote } = context;
 
   useEffect(() => {
+    //if their is  saved token in localStorage
+    if(localStorage.getItem("token"))
+    {
     getNotes(); 
+    }
+    else{
+    history.push("/login");}
     // eslint-disable-next-line
   }, [])
 
@@ -30,6 +38,7 @@ const updateNote  = (currentNote) => {
     
     ref2.current.click();
     setNote({id : currentNote._id ,etitle : currentNote.title , edescription : currentNote.description , etag : currentNote.tag})
+    
   };
 
   const [note , setNote]  = useState({ id : "" ,etitle : "" , edescription : "" , etag: ""})
@@ -45,11 +54,12 @@ const handleClick = (e)=>{
   editNote(note.id , note.etitle, note.edescription , note.etag)
   refClose.current.click();
   e.preventDefault(); 
+  props.showAlert("Note Updated" , "success")
 }
  
   return (
     <>
-      <AddNote/>
+      <AddNote showAlert ={props.showAlert}/>
  
       <div className="d-none">
       <Button   ref={ref2} variant="primary" onClick={handleShow}>
@@ -129,7 +139,7 @@ const handleClick = (e)=>{
         </div>
         {notes.map((note) => {
           return (
-            <Noteitem key={note._id}  note={note} updateNote={updateNote} />
+            <Noteitem showAlert ={props.showAlert} key={note._id}  note={note} updateNote={updateNote} />
           );
         })}
       </div>
